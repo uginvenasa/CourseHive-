@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseHive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes honeycomb {
+            0% { background-position: 0 0; }
+            100% { background-position: 60px 30px; }
+        }
+        .honeycomb-bg {
+            background-image: 
+                radial-gradient(circle at 50% 50%, 
+                rgba(234, 179, 8, 0.1) 1px, 
+                transparent 1px);
+            background-size: 60px 30px;
+            animation: honeycomb 20s linear infinite;
+        }
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        .logo-container {
+            perspective: 1000px;
+        }
+        .logo-img {
+            transition: transform 0.5s;
+        }
+        .logo-img:hover {
+            transform: rotateY(20deg) scale(1.1);
+        }
+        .hexagon-btn {
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 1rem 2rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        .hexagon-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.6);
+        }
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .honeycomb-loader {
+            display: flex;
+            gap: 5px;
+        }
+        .honeycomb-loader div {
+            width: 30px;
+            height: 30px;
+            background: #f59e0b;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            animation: scale 1.5s ease-in-out infinite;
+        }
+        .honeycomb-loader div:nth-child(1) { animation-delay: 0.1s; }
+        .honeycomb-loader div:nth-child(2) { animation-delay: 0.3s; }
+        .honeycomb-loader div:nth-child(3) { animation-delay: 0.5s; }
+        .honeycomb-loader div:nth-child(4) { animation-delay: 0.7s; }
+        .honeycomb-loader div:nth-child(5) { animation-delay: 0.9s; }
+        @keyframes scale {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.5); opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-yellow-50 honeycomb-bg">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="honeycomb-loader">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <p class="mt-4 text-xl font-semibold text-yellow-600">Loading CourseHive...</p>
+    </div>
+
+    <!-- Landing Page -->
+    <section id="landing" class="h-screen flex flex-col justify-center items-center text-center px-4">
+        <div class="logo-container mb-8">
+            <img src="logo.png" alt="CourseHive" class="h-50 w-50">
+            <div class="logo-text text-5xl font-bold text-yellow-600 mt-4">CourseHive</div>
+        </div>
+        <p class="mt-4 text-lg text-gray-700 max-w-md mx-auto">Your buzzing hub of knowledge and learning opportunities</p>
+        <button onclick="showRoleSelection()" class="hexagon-btn mt-8">
+            <i class="fas fa-play mr-2"></i> Get Started
+        </button>
+    </section>
+
+    <!-- Role Selection Page -->
+    <section id="roleSelection" class="hidden h-screen flex flex-col justify-center items-center text-center px-4">
+        <div class="logo-container mb-8">
+            <img src="logo.png" alt="CourseHive" class="h-50 w-50">
+            <div class="logo-text text-5xl font-bold text-yellow-600 mt-4">CourseHive</div>
+        </div>
+        <h2 class="text-4xl font-bold text-yellow-600 mt-4">Welcome to the Hive!</h2>
+        <p class="mt-4 text-lg text-gray-700 max-w-md mx-auto">Select your role to continue</p>
+        <div class="mt-8 flex flex-col sm:flex-row gap-4">
+            <button onclick="showStudentLogin()" class="hexagon-btn">
+                <i class="fas fa-user-graduate mr-2"></i> For Students
+            </button>
+            <button onclick="showAdminLogin()" class="hexagon-btn">
+                <i class="fas fa-user-shield mr-2"></i> For Admin
+            </button>
+        </div>
+    </section>
+
+    <!-- Student Login Page -->
+    <section id="studentLogin" class="hidden flex justify-center items-center h-screen px-4">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md border border-yellow-100">
+            <div class="flex justify-center mb-6">
+                <img src="logo.png" alt="CourseHive Logo" class="w-25 h-25">
+            </div>
+            <h2 class="text-center text-2xl font-bold text-yellow-600">Student Login</h2>
+            <form id="studentLoginForm" class="mt-6">
+                <div class="mb-4">
+                    <label class="block mb-2 text-gray-700 font-medium">Email</label>
+                    <input type="email" id="studentEmail" required 
+                        class="w-full p-3 border border-yellow-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block mb-2 text-gray-700 font-medium">Password</label>
+                    <div class="relative">
+                        <input type="password" id="studentPassword" required 
+                            class="w-full p-3 border border-yellow-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition pr-10">
+                        <i class="absolute right-3 top-3.5 text-gray-400 fas fa-eye cursor-pointer" 
+                            onclick="togglePasswordVisibility('studentPassword', this)"></i>
+                    </div>
+                </div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-white py-3 rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition shadow-lg">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Login
+                </button>
+                <p class="mt-4 text-center text-gray-600">
+                    New student? <a href="#" onclick="showStudentSignup()" class="text-yellow-600 font-bold hover:underline">Sign Up</a>
+                </p>
+            </form>
+        </div>
+    </section>
+
+    <!-- Student Signup Page -->
+    <section id="studentSignup" class="hidden flex justify-center items-center h-screen px-4">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md border border-yellow-100">
+            <div class="flex justify-center mb-6">
+                <img src="logo.png" alt="CourseHive Logo" class="w-20 h-20">
+            </div>
+            <h2 class="text-center text-2xl font-bold text-yellow-600">Student Sign Up</h2>
+            <form id="studentSignupForm" class="mt-6">
+                <div class="mb-4">
+                    <label class="block mb-2 text-gray-700 font-medium">Full Name</label>
+                    <input type="text" id="studentName" required 
+                        class="w-full p-3 border border-yellow-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block mb-2 text-gray-700 font-medium">Email</label>
+                    <input type="email" id="studentSignupEmail" required 
+                        class="w-full p-3 border border-yellow-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block mb-2 text-gray-700 font-medium">Password</label>
+                    <div class="relative">
+                        <input type="password" id="studentSignupPassword" required 
+                            class="w-full p-3 border border-yellow-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition pr-10">
+                        <i class="absolute right-3 top-3.5 text-gray-400 fas fa-eye cursor-pointer" 
+                            onclick="togglePasswordVisibility('studentSignupPassword', this)"></i>
+                    </div>
+                </div>
+                
+                <div id="studentSignupError" class="text-red-500 mb-4 text-sm hidden"></div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-white py-3 rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition shadow-lg">
+                    <i class="fas fa-user-plus mr-2"></i> Sign Up
+                </button>
+                <p class="mt-4 text-center text-gray-600">
+                    Already have an account? <a href="#" onclick="showStudentLogin()" class="text-yellow-600 font-bold hover:underline">Login</a>
+                </p>
+            </form>
+        </div>
+    </section>
+
+    <!-- Admin Login Page -->
+    <section id="adminLogin" class="hidden flex justify-center items-center h-screen px-4">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md border border-yellow-100">
+            <div class="flex justify-center mb-6">
+                <img src="logo.png" alt="CourseHive Logo" class="w-20 h-20">
+            </div>
+            <h2 class="text-center text-2xl font-bold text-yellow-600">Admin Login</h2>
+            <form id="adminLoginForm" class="mt-6">
+                <div class="mb-4">
+                    <label class="block mb-2 text-gray-700 font-medium">Username</label>
+                    <input type="text" id="adminUsername" required placeholder="adminName"
+                        class="w-full p-3 border border-yellow-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block mb-2 text-gray-700 font-medium">Password</label>
+                    <div class="relative">
+                        <input type="password" id="adminPassword" required placeholder="Password"
+                            class="w-full p-3 border border-yellow-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition pr-10">
+                        <i class="absolute right-3 top-3.5 text-gray-400 fas fa-eye cursor-pointer" 
+                            onclick="togglePasswordVisibility('adminPassword', this)"></i>
+                    </div>
+                </div>
+                
+                <div id="adminLoginError" class="text-red-500 mb-4 text-sm hidden"></div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-white py-3 rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition shadow-lg">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Login
+                </button>
+                <p class="mt-4 text-center text-gray-600">
+                    new here? <a href="#" onclick="showAdminsignup()" class="text-yellow-600 font-bold hover:underline">Signup</a>
+                </p>
+            </form>
+        </div>
+    </section>
+    
+    <!-- Admin Signup Page -->
+    <section id="adminSignup" class="hidden flex justify-center items-center h-screen px-4">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md border border-yellow-100">
+            <div class="flex justify-center mb-6">
+                <img src="logo.png" alt="CourseHive Logo" class="w-20 h-20">
+            </div>
+            <h2 class="text-center text-2xl font-bold text-yellow-600">admin Sign Up</h2>
+            <form id="adminSignupForm" class="mt-6">
+                <div class="mb-4">
+                    <label class="block mb-2 text-gray-700 font-medium">Full Name</label>
+                    <input type="text" id="admin" required 
+                        class="w-full p-3 border border-yellow-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block mb-2 text-gray-700 font-medium">Email</label>
+                    <input type="email" id="adminSignupEmail" required 
+                        class="w-full p-3 border border-yellow-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block mb-2 text-gray-700 font-medium">Password</label>
+                    <div class="relative">
+                        <input type="password" id="adminSignupPassword" required 
+                            class="w-full p-3 border border-yellow-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition pr-10">
+                        <i class="absolute right-3 top-3.5 text-gray-400 fas fa-eye cursor-pointer" 
+                            onclick="togglePasswordVisibility('adminSignupPassword', this)"></i>
+                    </div>
+                </div>
+                
+                <div id="adminSignupError" class="text-red-500 mb-4 text-sm hidden"></div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-white py-3 rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition shadow-lg">
+                    <i class="fas fa-user-plus mr-2"></i> Sign Up
+                </button>
+                <p class="mt-4 text-center text-gray-600">
+                    Already have an account? <a href="#" onclick="showAdminLogin()" class="text-yellow-600 font-bold hover:underline">Login</a>
+                </p>
+            </form>
+        </div>
+    </section>
+
+    <script>
+        // Hide loading screen after 2 seconds
+        setTimeout(() => {
+            document.getElementById('loadingScreen').style.display = 'none';
+        }, 2000);
+
+        // Initialize data on first load
+        function initializeData() {
+            if (!localStorage.getItem('dataInitialized')) {
+                localStorage.setItem('admins', JSON.stringify([
+                    { 
+                        username: "admin", 
+                        password: "admin123",
+                        name: "Administrator",
+                        email: "admin@coursehive.com" 
+                    }
+                ]));
+                localStorage.setItem('courses', JSON.stringify([]));
+                localStorage.setItem('students', JSON.stringify([]));
+                localStorage.setItem('enrollments', JSON.stringify([]));
+                localStorage.setItem('dataInitialized', 'true');
+            }
+        }
+        initializeData();
+
+        // Toggle password visibility
+        function togglePasswordVisibility(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.replace("fa-eye", "fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.replace("fa-eye-slash", "fa-eye");
+            }
+        }
+
+        // Navigation functions
+        function showRoleSelection() {
+            hideAllSections();
+            document.getElementById("roleSelection").classList.remove("hidden");
+        }
+        
+        function showStudentLogin() {
+            hideAllSections();
+            document.getElementById("studentLogin").classList.remove("hidden");
+        }
+        
+        function showStudentSignup() {
+            hideAllSections();
+            document.getElementById("studentSignup").classList.remove("hidden");
+        }
+        
+        function showAdminLogin() {
+            hideAllSections();
+            document.getElementById("adminLogin").classList.remove("hidden");
+        }
+        function showAdminsignup() {
+            hideAllSections();
+            document.getElementById("adminSignup").classList.remove("hidden");
+        }
+
+        function hideAllSections() {
+            document.getElementById("landing").classList.add("hidden");
+            document.getElementById("roleSelection").classList.add("hidden");
+            document.getElementById("studentLogin").classList.add("hidden");
+            document.getElementById("studentSignup").classList.add("hidden");
+            document.getElementById("adminLogin").classList.add("hidden");
+        }
+
+        // Student Login
+        document.getElementById("studentLoginForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const email = document.getElementById("studentEmail").value;
+            const password = document.getElementById("studentPassword").value;
+            const students = JSON.parse(localStorage.getItem('students') || '[]');
+            
+            const student = students.find(s => s.email === email && s.password === password);
+            
+            if (student) {
+                document.getElementById('loadingScreen').style.display = 'flex';
+                localStorage.setItem("currentStudent", JSON.stringify(student));
+                localStorage.setItem("studentAuth", "true");
+                setTimeout(() => {
+                    window.location.href = "student-dashboard.html";
+                }, 1500);
+            } else {
+                alert("Invalid student credentials");
+            }
+        });
+
+        // Student Signup
+        document.getElementById("studentSignupForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const name = document.getElementById("studentName").value.trim();
+            const email = document.getElementById("studentSignupEmail").value.trim();
+            const password = document.getElementById("studentSignupPassword").value;
+            const errorElement = document.getElementById("studentSignupError");
+            
+            // Validation
+            if (!name || name.length < 3) {
+                errorElement.textContent = "Name must be at least 3 characters";
+                errorElement.classList.remove("hidden");
+                return;
+            }
+            if (!email || !email.includes('@')) {
+                errorElement.textContent = "Enter a valid email";
+                errorElement.classList.remove("hidden");
+                return;
+            }
+            if (!password || password.length < 6) {
+                errorElement.textContent = "Password must be 6+ characters";
+                errorElement.classList.remove("hidden");
+                return;
+            }
+            
+            const students = JSON.parse(localStorage.getItem('students') || '[]');
+            
+            // Check if email already exists
+            if (students.some(s => s.email === email)) {
+                errorElement.textContent = "Email already registered";
+                errorElement.classList.remove("hidden");
+                return;
+            }
+            
+            // Create new student
+            const newStudent = {
+                id: Date.now().toString(),
+                name,
+                email,
+                password,
+                enrolledCourses: []
+            };
+            
+            students.push(newStudent);
+            localStorage.setItem('students', JSON.stringify(students));
+            
+            alert("Registration successful! Please login.");
+            showStudentLogin();
+        });
+
+        // Admin Login
+        document.getElementById("adminLoginForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const username = document.getElementById("adminUsername").value;
+            const password = document.getElementById("adminPassword").value;
+            const errorElement = document.getElementById("adminLoginError");
+
+            const admins = JSON.parse(localStorage.getItem('admins') || '[]');
+            const admin = admins.find(a => a.username === username && a.password === password);
+
+            errorElement.classList.add("hidden");
+
+            if (admin) {
+                document.getElementById('loadingScreen').style.display = 'flex';
+                localStorage.setItem("adminAuth", "true");
+                localStorage.setItem("currentAdmin", JSON.stringify(admin));
+                setTimeout(() => {
+                    window.location.href = "admin-dashboard.html";
+                }, 1500);
+            } else {
+                errorElement.textContent = "Invalid admin credentials";
+                errorElement.classList.remove("hidden");
+            }
+        });
+    </script>
+</body>
+</html>
